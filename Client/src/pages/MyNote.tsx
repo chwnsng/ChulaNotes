@@ -1,40 +1,67 @@
 import Item from "../components/UIElements/Item";
+import { DataContext } from "../App";
+import { useState, useContext, useEffect } from "react";
 import "./MyNote.css";
 import Card from "../components/UIElements/Card";
 import Button from "../components/UIElements/Button";
+
+const BUTTON_DATA = [
+	"Mathematics",
+	"Science",
+	"Gen-Ed",
+	"Engineering",
+	"Electives",
+];
+
 const MyNote = () => {
+	const { dataState } = useContext(DataContext);
+	const [, setFilter] = useState("all");
+	const [data, setData] = useState(dataState);
+
+	const filterHandler = (filter: string) => {
+		setFilter(filter);
+		setData(dataState.filter((e: any) => e.type === filter));
+		console.log(dataState);
+	};
+	useEffect(() => {
+		console.log(dataState);
+		setData(dataState);
+	}, [dataState]);
+
 	return (
 		<>
 			<Card className='card-stats'>
-				<h1>Category</h1>
-				<Button label='Mechanics' className='filter-button' />
+				<h1>Catagory</h1>
+				{BUTTON_DATA.map((e: any) => (
+					<Button
+						label={e}
+						className='filter-button'
+						clickHandler={() => {
+							filterHandler(e);
+						}}
+					/>
+				))}
 			</Card>
-			<div className='item-container'>
-				<Item
-					title='Calculus I'
-					description="A note on L'Hospital"
-					alt='Cal_I.pdf'
-					src='https://pll.harvard.edu/sites/default/files/styles/header/public/course/asset-v1_HarvardX%2BCalcAPL1x%2B2T2017%2Btype%40asset%2Bblock%40TITLE-Calculus-Applied-2120x1192-NO-SPOTLIGHT%202.png?itok=crWwjmVi'
-				/>
-				<Item
-					title='Calculus II'
-					description='Notes about Double Integral'
-					alt='Cal_II.pdf'
-					src='https://pll.harvard.edu/sites/default/files/styles/header/public/course/asset-v1_HarvardX%2BCalcAPL1x%2B2T2017%2Btype%40asset%2Bblock%40TITLE-Calculus-Applied-2120x1192-NO-SPOTLIGHT%202.png?itok=crWwjmVi'
-				/>
-				<Item
-					title='Calculus III'
-					description='Paper on Curls & Divergents from MIT'
-					alt='Cal_III.pdf'
-					src='https://pll.harvard.edu/sites/default/files/styles/header/public/course/asset-v1_HarvardX%2BCalcAPL1x%2B2T2017%2Btype%40asset%2Bblock%40TITLE-Calculus-Applied-2120x1192-NO-SPOTLIGHT%202.png?itok=crWwjmVi'
-				/>
-				<Item
-					title='Physics'
-					description='Laws of motion'
-					alt='Newton.pdf'
-					src='https://www.aakash.ac.in/blog/wp-content/uploads/2022/04/Blog-Image-30.jpg'
-				/>
-			</div>
+			{data.length > 0 && (
+				<div className='item-container'>
+					{data.map((entries: any) => (
+						<Item
+							key={entries.key}
+							type={entries.type}
+							title={entries.title}
+							description={entries.description}
+							alt={entries.alt}
+							src={entries.src}
+							data={entries}
+						/>
+					))}
+				</div>
+			)}
+			{data.length === 0 && (
+				<Card className='card-no-item'>
+					<h1>No Notes in this Catagory. Upload one?</h1>
+				</Card>
+			)}
 		</>
 	);
 };
